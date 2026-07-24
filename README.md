@@ -113,6 +113,8 @@ Replace `your-key-here` with the actual API key from your meow meow scratch dash
 
 > **Note:** This `export` command only lasts for your current terminal session. If you close the terminal and open a new one, you will need to run it again. For a permanent solution, you can add the line to your `~/.bashrc` file.
 
+> **Which kind of key should you use?** Your account offers two. A **platform token** works across every app you own. An **app API key** works for one app only. For a Pi that sits running for days, use an **app API key** — if it ever leaks, only this one app is affected, not your whole account. You'll find both in your account settings.
+
 ### 5. Set up your API collection (see the API setup section below)
 
 Before running the code, you need to create a place in your meow meow scratch account where the motion events will be stored. See the **API setup** section below for step-by-step instructions.

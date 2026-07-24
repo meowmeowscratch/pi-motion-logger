@@ -26,7 +26,9 @@ from datetime import datetime, timezone
 # RPi.GPIO — control the Raspberry Pi's GPIO pins so we can read the PIR sensor's signal
 import RPi.GPIO as GPIO
 # Meow, MeowError — the meow meow scratch SDK for sending data to your cloud account
-from meow_sdk import Meow, MeowError
+# AuthError, RateLimitError — more specific kinds of MeowError, so we can tell you
+#   whether your key was rejected or you're simply sending too fast
+from meow_sdk import Meow, MeowError, AuthError, RateLimitError
 
 API_KEY = os.environ.get("MEOW_API_KEY")
 if not API_KEY:
@@ -73,8 +75,21 @@ def main():
                 try:
                     api.send(APP, ENDPOINT, data)
                     print(f"[{now.strftime('%H:%M:%S')}] Motion detected!")
+                except AuthError as e:
+                    # A rejected key won't fix itself on the next movement.
+                    print(f"API key rejected: {e}")
+                    if e.hint:
+                        print(f"Hint: {e.hint}")
+                    sys.exit(1)
+                except RateLimitError as e:
+                    # Too many events too quickly. Skip this one rather than
+                    # pausing, so we don't miss the movement happening now.
+                    print(f"Rate limited: {e}")
                 except MeowError as e:
                     print(f"Send failed: {e}")
+                    # .hint is a plain-English fix from the API, when it has one.
+                    if e.hint:
+                        print(f"Hint: {e.hint}")
 
                 last_event = time.time()
 
